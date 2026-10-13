@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Explainable Diabetes Risk Prediction Dashboard | Dhanalakshmi College of Engineering</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  <!-- Chart.js CDN with fallback handling in app.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- Top Institutional Header -->
+  <header class="top-header">
+    <div class="header-inner">
+      <div class="brand-section">
+        <div class="brand-logo-icon">🩺</div>
+        <div class="brand-text">
+          <h1>Explainable Diabetes Risk Prediction Dashboard</h1>
+          <div class="dept-title">Department of Artificial Intelligence and Data Science — Dhanalakshmi College of Engineering</div>
+        </div>
+      </div>
+      <div class="project-meta-pills">
+        <span class="pill pill-primary">Batch No: 10</span>
+        <span class="pill pill-neutral">Date: 09.10.2026</span>
+        <span class="pill pill-success" id="model-status-pill">● System Online (XGBoost + TreeSHAP)</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation Tab Bar -->
+  <div class="nav-container">
+    <div class="nav-tabs">
+      <button class="nav-tab-btn active" data-tab="diagnostic-tab">
+        <span>🩺</span> Patient Clinical Assessment
+      </button>
+      <button class="nav-tab-btn" data-tab="whatif-tab">
+        <span>🔬</span> "What-If" Intervention Simulator
+      </button>
+      <button class="nav-tab-btn" data-tab="batch-tab">
+        <span>📂</span> Cohort Batch Screening
+      </button>
+      <button class="nav-tab-btn" data-tab="transparency-tab">
+        <span>📊</span> Model Transparency & Metrics
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Content Wrapper -->
+  <main class="main-wrapper">
+
+    <!-- =========================================================================
+         TAB 1: PATIENT CLINICAL ASSESSMENT & EXPLAINABILITY
+         ========================================================================= -->
+    <section id="diagnostic-tab" class="tab-pane active">
+      
+      <!-- Archetype Quick Selector -->
+      <div class="card" style="padding: 1rem 1.5rem; margin-bottom: 1.25rem;">
+        <div class="archetype-strip">
+          <span class="archetype-label">⚡ Sample Clinical Profiles:</span>
+          <div id="archetypes-container" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <!-- Dynamically populated from API -->
+            <button class="archetype-btn" type="button" onclick="loadSamplePatient('healthy_patient')">🌱 Healthy Adult</button>
+            <button class="archetype-btn" type="button" onclick="loadSamplePatient('borderline_patient')">⚠️ Borderline Pre-Diabetic</button>
+            <button class="archetype-btn" type="button" onclick="loadSamplePatient('high_risk_patient')">🚨 High Risk (Metabolic)</button>
+            <button class="archetype-btn" type="button" onclick="loadSamplePatient('genetic_risk_patient')">🧬 High Genetic Risk</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="diagnostic-grid">
+        
+        <!-- Patient Clinical Data Form -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <h2><span>📋</span> Clinical & Demographic Attributes</h2>
+              <p>Enter patient physiological markers and laboratory findings</p>
+            </div>
+            <button type="button" class="btn-secondary" style="font-size: 0.75rem; padding: 0.35rem 0.65rem;" onclick="resetForm()">Reset Form</button>
+          </div>
+
+          <form id="patient-form">
+            <div class="form-grid">
+              
+              <!-- Glucose -->
+              <div class="form-group">
+                <div class="form-label-row">
+                  <label class="form-label" for="inp-glucose">Plasma Glucose</label>
+                  <span class="ref-range-chip">70 - 139 mg/dL</span>
+                </div>
+                <div class="input-wrapper">
+                  <input type="number" step="0.1" class="form-input" id="inp-glucose" name="Glucose" value="148.0" required>
+                  <span class="unit-tag">mg/dL</span>
+                </div>
+              </div>
+
+              <!-- BMI -->
+              <div class="form-group">
+                <div class="form-label-row">
+                  <label class="form-label" for="inp-bmi">Body Mass Index (BMI)</label>
+                  <span class="ref-range-chip">18.5 - 24.9</span>
+                </div>
+                <div class="input-wrapper">
+                  <input type="number" step="0.1" class="form-input" id="inp-bmi" name="BMI" value="33.6" required>
+                  <span class="unit-tag">kg/m²</span>
+                </div>
+              </div>
+
+              <!-- Blood Pressure -->
+              <div class="form-group">
+                <div class="form-label-row">
+                  <label class="form-label" for="inp-bp">Diastolic Blood Pressure</label>
+                  <span class="ref-range-chip">60 - 80 mmHg</span>
+                </div>
+                <div class="input-wrapper">
+                  <input type="number" step="0.1" class="form-input" id="inp-bp" name="BloodPressure" value="72.0" required>
+                  <span class="unit-tag">mmHg</span>
+                </div>
+              </div>
+
+              <!-- Age -->
+              <div class="form-group">
+                <div class="form-label-row">
+                  <label class="form-label" for="inp-age">Patient Age</label>
+                  <span class="ref-range-chip">18 - 80 yrs</span>
+                </div>
+                <div class="input-wrapper">
+                  <input type="number" step="1" class="form-input" id="inp-age" name="Age" value="50" required>
+                  <span class="unit-tag">years</span>
+                </div>
+              </div>
+
+              <!-- Serum Insulin -->
+              <div class="form-group">
+                <div class="form-label-row">
+                  <label class="form-label" for="inp-insulin">2-Hour Serum Insulin</label>
+                  <span class="ref-range-chip">16 - 166 μU/mL</span>
+                </div>
+                <div class="input-wrapper">
+                  <input type="number" step="0.1" class="form-input" id="inp-insulin" name="Insulin" value="125.0" required>
+                  <span class="unit-tag">μU/mL</span>
+                </div>
+              </div>
+
+              <!-- Skin Thickness -->
+              <div class="form-group">
+                <div class="form-label-row">
+                  <label class="form-label" for="inp-skinthickness">Triceps Skinfold</label>
+                  <span class="ref-range-chip">10 - 30 mm</span>
+                </div>
+                <div class="input-wrapper">
+                  <input type="number" step="0.1" class="form-input" id="inp-skinthickness" name="SkinThickness" value="35.0" required>
+                  <span class="unit-tag">mm</span>
+                </div>
+              </div>
+
+              <!-- Diabetes Pedigree Function -->
+              <div class="form-group">
+                <div class="form-label-row">
+                  <label class="form-label" for="inp-pedigree">Diabetes Pedigree Score</label>
+                  <span class="ref-range-chip">0.08 - 0.45</span>
+                </div>
+                <div class="input-wrapper">
+                  <input type="number" step="0.001" class="form-input" id="inp-pedigree" name="DiabetesPedigreeFunction" value="0.627" required>
+                  <span class="unit-tag">score</span>
+                </div>
+              </div>
+
+              <!-- Pregnancies -->
+              <div class="form-group">
+                <div class="form-label-row">
+                  <label class="form-label" for="inp-pregnancies">Pregnancies Count</label>
+                  <span class="ref-range-chip">0 - 4</span>
+                </div>
+                <div class="input-wrapper">
+                  <input type="number" step="1" class="form-input" id="inp-pregnancies" name="Pregnancies" value="6" required>
+                  <span class="unit-tag">count</span>
+                </div>
+              </div>
+
+            </div>
+
+            <button type="submit" class="btn-primary" id="btn-analyze">
+              <span>🔍</span> Analyze Diabetes Risk & Feature Contributions
+            </button>
+          </form>
+
+        </div>
+
+        <!-- Prediction Result & SHAP Visualizer -->
+        <div>
+          
+          <!-- Risk Banner Summary -->
+          <div class="card" style="padding: 1.25rem;">
+            <div id="risk-banner" class="result-banner high">
+              <div class="risk-dial-container">
+                <div class="risk-circle">
+                  <svg viewBox="0 0 100 100">
+                    <circle class="risk-circle-bg" cx="50" cy="50" r="40"></circle>
+                    <circle class="risk-circle-val" id="risk-dial-circle" cx="50" cy="50" r="40" stroke="#ef4444" stroke-dasharray="251.2" stroke-dashoffset="65"></circle>
+                  </svg>
+                  <div class="risk-circle-text">
+                    <div class="risk-pct-number" id="risk-pct-val">74.2%</div>
+                    <div class="risk-pct-label">Risk</div>
+                  </div>
+                </div>
+                <div>
+                  <div class="risk-tier-badge high" id="risk-badge">High Risk</div>
+                  <div class="baseline-compare" id="baseline-compare-text">
+                    Population Baseline: <strong>34.9%</strong> (Elevated by +39.3%)
+                  </div>
+                </div>
+              </div>
+              <div class="result-clinical-text" id="clinical-summary-text">
+                High clinical likelihood of diabetes identified. Multiple key biomarkers substantially elevate the predictive risk. Immediate clinical review advised.
+              </div>
+            </div>
+
+            <!-- Top Factors Summary Chips -->
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.5rem;" id="top-factors-chips">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- Feature Contribution Waterfall Chart Box -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title-group">
+                <h2><span>📈</span> Clinical Feature Contribution Analysis (SHAP)</h2>
+                <p>Additive contribution of each factor to patient risk vs baseline</p>
+              </div>
+              <div class="chart-legend">
+                <div class="legend-item">
+                  <div class="legend-color-box legend-risk"></div>
+                  <span>Increases Risk</span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-color-box legend-protective"></div>
+                  <span>Protective / Decreases</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Chart.js Canvas -->
+            <div style="position: relative; height: 260px; width: 100%;">
+              <canvas id="shap-waterfall-chart"></canvas>
+            </div>
+
+            <!-- Fallback Pure CSS Waterfall List (visible if Chart.js is offline) -->
+            <div id="waterfall-fallback" class="waterfall-list" style="display: none; margin-top: 1rem;">
+              <!-- Dynamically populated fallback -->
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Detailed Clinical Factor Insights & Action Plan Table -->
+      <div class="card" style="margin-top: 1.5rem;">
+        <div class="card-header">
+          <div class="card-title-group">
+            <h2><span>🩺</span> Comprehensive Clinical Insights & Action Recommendations</h2>
+            <p>Evidence-based breakdown for patient counseling and therapeutic guidance</p>
+          </div>
+          <button type="button" class="btn-secondary" onclick="window.print()">
+            <span>🖨️</span> Print Clinical Report
+          </button>
+        </div>
+
+        <div class="insights-table-box">
+          <table class="clinical-table">
+            <thead>
+              <tr>
+                <th>Clinical Parameter</th>
+                <th>Patient Value</th>
+                <th>Reference Range</th>
+                <th>Clinical Status</th>
+                <th>SHAP Contribution</th>
+                <th>Diagnostic Interpretation & Action Plan</th>
+              </tr>
+            </thead>
+            <tbody id="clinical-insights-tbody">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- =========================================================================
+         TAB 2: WHAT-IF INTERVENTION SIMULATOR
+         ========================================================================= -->
+    <section id="whatif-tab" class="tab-pane" style="display: none;">
+      
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <h2><span>🔬</span> Interactive "What-If" Clinical Intervention Simulator</h2>
+            <p>Simulate targeted glycemic and lifestyle interventions to quantify achievable risk reduction</p>
+          </div>
+          <button type="button" class="btn-secondary" onclick="syncWhatIfWithCurrentPatient()">
+            <span>🔄</span> Sync With Current Patient Form
+          </button>
+        </div>
+
+        <!-- Delta Risk Banner -->
+        <div class="metric-delta-banner" id="whatif-banner" style="margin-bottom: 1.5rem;">
+          <div>
+            <div style="font-size: 0.85rem; font-weight: 600; color: #4338ca;">SIMULATED RISK REDUCTION</div>
+            <div style="font-size: 1.6rem; font-weight: 800; color: #1e1b4b;" id="whatif-delta-text">
+              Risk Drops from 74.2% → 22.8% (69.3% Relative Reduction)
+            </div>
+          </div>
+          <div class="pill pill-success" style="font-size: 0.9rem; padding: 0.5rem 1rem;" id="whatif-status-pill">
+            ✅ Major Clinical Improvement
+          </div>
+        </div>
+
+        <div class="whatif-container">
+          
+          <!-- Sliders Box -->
+          <div class="comparison-card">
+            <h3 style="font-size: 1rem; font-weight: 700; color: var(--neutral-900);">Adjust Modifiable Clinical Targets</h3>
+            <p style="font-size: 0.8rem; color: var(--neutral-500);">Move sliders to simulate therapeutic, dietary, and exercise interventions:</p>
+
+            <!-- Glucose Slider -->
+            <div class="slider-group">
+              <div class="slider-header">
+                <span class="slider-label">Target Glucose (mg/dL)</span>
+                <span class="slider-value-display" id="val-target-glucose">105 mg/dL</span>
+              </div>
+              <input type="range" class="slider-input" id="slider-glucose" min="70" max="240" step="1" value="105" oninput="onWhatIfSliderChange()">
+              <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--neutral-400);">
+                <span>Optimal (70)</span>
+                <span>Pre-diabetic (140)</span>
+                <span>Diabetic (200+)</span>
+              </div>
+            </div>
+
+            <!-- BMI Slider -->
+            <div class="slider-group">
+              <div class="slider-header">
+                <span class="slider-label">Target BMI (kg/m²)</span>
+                <span class="slider-value-display" id="val-target-bmi">24.2 kg/m²</span>
+              </div>
+              <input type="range" class="slider-input" id="slider-bmi" min="18.5" max="50" step="0.2" value="24.2" oninput="onWhatIfSliderChange()">
+              <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--neutral-400);">
+                <span>Normal (18.5 - 24.9)</span>
+                <span>Overweight (25 - 29.9)</span>
+                <span>Obese (30+)</span>
+              </div>
+            </div>
+
+            <!-- Blood Pressure Slider -->
+            <div class="slider-group">
+              <div class="slider-header">
+                <span class="slider-label">Target Diastolic BP (mmHg)</span>
+                <span class="slider-value-display" id="val-target-bp">72 mmHg</span>
+              </div>
+              <input type="range" class="slider-input" id="slider-bp" min="50" max="120" step="1" value="72" oninput="onWhatIfSliderChange()">
+              <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--neutral-400);">
+                <span>Normal (<80)</span>
+                <span>Stage 1 (80-89)</span>
+                <span>Hypertension (90+)</span>
+              </div>
+            </div>
+
+            <!-- Insulin Slider -->
+            <div class="slider-group">
+              <div class="slider-header">
+                <span class="slider-label">Target Serum Insulin (μU/mL)</span>
+                <span class="slider-value-display" id="val-target-insulin">75 μU/mL</span>
+              </div>
+              <input type="range" class="slider-input" id="slider-insulin" min="16" max="300" step="2" value="75" oninput="onWhatIfSliderChange()">
+            </div>
+
+          </div>
+
+          <!-- Comparative Feature Shift Table & Chart -->
+          <div class="comparison-card">
+            <h3 style="font-size: 1rem; font-weight: 700; color: var(--neutral-900);">Clinical Feature Contribution Shift</h3>
+            <p style="font-size: 0.8rem; color: var(--neutral-500);">Comparison between baseline and modified patient status:</p>
+
+            <div class="insights-table-box" style="margin-top: 0.5rem;">
+              <table class="clinical-table">
+                <thead>
+                  <tr>
+                    <th>Feature</th>
+                    <th>Current</th>
+                    <th>Target</th>
+                    <th>Change</th>
+                    <th>Impact on Risk</th>
+                  </tr>
+                </thead>
+                <tbody id="whatif-shifts-tbody">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+            </div>
+
+            <div style="margin-top: 1rem; padding: 1rem; background: var(--neutral-50); border-radius: var(--radius-md); font-size: 0.825rem; color: var(--neutral-700);">
+              <strong>💡 Clinical Recommendation:</strong>
+              Achieving these metabolic targets transitions the patient from High Risk into a safe protective window, removing glycemic toxicity and restoring insulin receptor responsiveness.
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- =========================================================================
+         TAB 3: COHORT BATCH SCREENING
+         ========================================================================= -->
+    <section id="batch-tab" class="tab-pane" style="display: none;">
+      
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <h2><span>📂</span> Clinical Cohort Batch Screening</h2>
+            <p>Upload a CSV patient registry for automated risk classification and feature contribution attribution</p>
+          </div>
+          <button type="button" class="btn-primary" style="margin: 0; width: auto; padding: 0.5rem 1rem;" onclick="loadSampleBatchFile()">
+            <span>⚡</span> Load Demonstration Cohort (25 Patients)
+          </button>
+        </div>
+
+        <!-- File Upload Dropzone -->
+        <div class="batch-dropzone" onclick="document.getElementById('batch-file-input').click()">
+          <div class="dropzone-icon">📁</div>
+          <div style="font-weight: 700; font-size: 1.05rem; color: var(--neutral-800);">Upload Patient CSV File</div>
+          <div style="font-size: 0.825rem; color: var(--neutral-500); margin-top: 0.25rem;">
+            Click to browse or drag and drop CSV file (requires Glucose, BMI, BloodPressure, Age, Insulin, etc.)
+          </div>
+          <input type="file" id="batch-file-input" accept=".csv" style="display: none;" onchange="handleBatchFileUpload(event)">
+        </div>
+
+        <!-- Cohort Summary Metrics -->
+        <div class="stats-cards-grid" id="batch-stats-grid" style="display: none;">
+          <div class="stat-metric-card">
+            <div class="stat-metric-label">Total Screened</div>
+            <div class="stat-metric-val" id="batch-total-screened">25</div>
+            <div class="stat-metric-sub">Patients Analyzed</div>
+          </div>
+          <div class="stat-metric-card" style="border-left: 4px solid var(--success);">
+            <div class="stat-metric-label">Low Risk Cohort</div>
+            <div class="stat-metric-val" style="color: var(--success);" id="batch-low-count">13</div>
+            <div class="stat-metric-sub">Healthy / Protective</div>
+          </div>
+          <div class="stat-metric-card" style="border-left: 4px solid var(--warning);">
+            <div class="stat-metric-label">Moderate Risk Cohort</div>
+            <div class="stat-metric-val" style="color: var(--warning);" id="batch-mod-count">5</div>
+            <div class="stat-metric-sub">Pre-diabetic Watch</div>
+          </div>
+          <div class="stat-metric-card" style="border-left: 4px solid var(--danger);">
+            <div class="stat-metric-label">High Risk Cohort</div>
+            <div class="stat-metric-val" style="color: var(--danger);" id="batch-high-count">7</div>
+            <div class="stat-metric-sub">Immediate Intervention</div>
+          </div>
+        </div>
+
+        <!-- Batch Results Table -->
+        <div class="insights-table-box" id="batch-table-container" style="display: none; margin-top: 1.5rem;">
+          <table class="clinical-table">
+            <thead>
+              <tr>
+                <th>Patient ID</th>
+                <th>Glucose (mg/dL)</th>
+                <th>BMI (kg/m²)</th>
+                <th>Blood Pressure</th>
+                <th>Age</th>
+                <th>Risk Likelihood</th>
+                <th>Clinical Classification</th>
+                <th>Primary Clinical Risk Driver</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="batch-results-tbody">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- =========================================================================
+         TAB 4: MODEL TRANSPARENCY & EVALUATION METRICS
+         ========================================================================= -->
+    <section id="transparency-tab" class="tab-pane" style="display: none;">
+      
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <h2><span>📊</span> Machine Learning Model Performance & Validation</h2>
+            <p>XGBoost Classification Pipeline with Missing-Value Imputation and Stratified Cross-Validation</p>
+          </div>
+          <span class="pill pill-primary">Evaluated on Held-Out Test Set (N=154)</span>
+        </div>
+
+        <!-- Validation Metrics Cards -->
+        <div class="stats-cards-grid">
+          <div class="stat-metric-card">
+            <div class="stat-metric-label">Accuracy</div>
+            <div class="stat-metric-val" id="stat-accuracy">77.3%</div>
+            <div class="stat-metric-sub">5-Fold CV Mean</div>
+          </div>
+          <div class="stat-metric-card">
+            <div class="stat-metric-label">ROC - AUC Score</div>
+            <div class="stat-metric-val" id="stat-auc" style="color: var(--primary);">0.835</div>
+            <div class="stat-metric-sub">High Discriminative Power</div>
+          </div>
+          <div class="stat-metric-card">
+            <div class="stat-metric-label">Sensitivity / Recall</div>
+            <div class="stat-metric-val" id="stat-recall">74.1%</div>
+            <div class="stat-metric-sub">True Positive Detection</div>
+          </div>
+          <div class="stat-metric-card">
+            <div class="stat-metric-label">Specificity</div>
+            <div class="stat-metric-val" id="stat-specificity">79.0%</div>
+            <div class="stat-metric-sub">True Negative Rate</div>
+          </div>
+          <div class="stat-metric-card">
+            <div class="stat-metric-label">F1 - Score</div>
+            <div class="stat-metric-val" id="stat-f1">0.718</div>
+            <div class="stat-metric-sub">Harmonic Mean</div>
+          </div>
+        </div>
+
+        <div class="transparency-grid">
+          
+          <!-- Confusion Matrix Card -->
+          <div class="comparison-card">
+            <h3 style="font-size: 1rem; font-weight: 700; color: var(--neutral-900);">Confusion Matrix (Held-out Test Cohort)</h3>
+            <p style="font-size: 0.8rem; color: var(--neutral-500);">Evaluates binary diagnostic accuracy across test population:</p>
+
+            <table class="confusion-matrix-table">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>Predicted Healthy</th>
+                  <th>Predicted Diabetic</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th style="background: var(--neutral-50);">Actual Healthy</th>
+                  <td class="confusion-cell highlight" id="cm-tn">79 (TN)</td>
+                  <td class="confusion-cell" id="cm-fp">21 (FP)</td>
+                </tr>
+                <tr>
+                  <th style="background: var(--neutral-50);">Actual Diabetic</th>
+                  <td class="confusion-cell" id="cm-fn">14 (FN)</td>
+                  <td class="confusion-cell highlight" id="cm-tp">40 (TP)</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div style="font-size: 0.775rem; color: var(--neutral-500); margin-top: 0.5rem; text-align: center;">
+              *TN: True Negative, FP: False Positive, FN: False Negative, TP: True Positive
+            </div>
+          </div>
+
+          <!-- Global Feature Importance Ranking -->
+          <div class="comparison-card">
+            <h3 style="font-size: 1rem; font-weight: 700; color: var(--neutral-900);">Global Clinical Feature Importance</h3>
+            <p style="font-size: 0.8rem; color: var(--neutral-500);">Relative predictive weight across the entire training population:</p>
+
+            <div id="global-importance-list" style="display: flex; flex-direction: column; gap: 0.6rem; margin-top: 0.75rem;">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Institutional Footer -->
+  <footer class="app-footer">
+    <div class="footer-inner">
+      <div>
+        <strong>Dhanalakshmi College of Engineering</strong> — Department of Artificial Intelligence and Data Science
+      </div>
+      <div>
+        Project Batch 10: Venkata Sai Pavan G (410723243102) • Revanth Kumar K (410723243074) • Khasim Vali Shaik (410713253086)
+      </div>
+      <div>
+        Explainable AI for Healthcare Informatics © 2026
+      </div>
+    </div>
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

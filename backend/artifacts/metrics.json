@@ -1,0 +1,287 @@
+{
+  "metrics": {
+    "accuracy": 0.7273,
+    "precision": 0.6364,
+    "recall_sensitivity": 0.5185,
+    "specificity": 0.84,
+    "f1_score": 0.5714,
+    "roc_auc": 0.8237,
+    "cv_roc_auc_mean": 0.8362,
+    "cv_accuracy_mean": 0.7687,
+    "confusion_matrix": {
+      "true_negative": 84,
+      "false_positive": 16,
+      "false_negative": 26,
+      "true_positive": 28,
+      "total_test_samples": 154
+    },
+    "roc_curve": [
+      {
+        "fpr": 0.0,
+        "tpr": 0.0
+      },
+      {
+        "fpr": 0.0,
+        "tpr": 0.0185
+      },
+      {
+        "fpr": 0.0,
+        "tpr": 0.0926
+      },
+      {
+        "fpr": 0.01,
+        "tpr": 0.0926
+      },
+      {
+        "fpr": 0.01,
+        "tpr": 0.1296
+      },
+      {
+        "fpr": 0.02,
+        "tpr": 0.1296
+      },
+      {
+        "fpr": 0.02,
+        "tpr": 0.1667
+      },
+      {
+        "fpr": 0.05,
+        "tpr": 0.1667
+      },
+      {
+        "fpr": 0.05,
+        "tpr": 0.2593
+      },
+      {
+        "fpr": 0.07,
+        "tpr": 0.2593
+      },
+      {
+        "fpr": 0.07,
+        "tpr": 0.3889
+      },
+      {
+        "fpr": 0.08,
+        "tpr": 0.3889
+      },
+      {
+        "fpr": 0.08,
+        "tpr": 0.4444
+      },
+      {
+        "fpr": 0.09,
+        "tpr": 0.4444
+      },
+      {
+        "fpr": 0.09,
+        "tpr": 0.463
+      },
+      {
+        "fpr": 0.12,
+        "tpr": 0.463
+      },
+      {
+        "fpr": 0.12,
+        "tpr": 0.5
+      },
+      {
+        "fpr": 0.13,
+        "tpr": 0.5
+      },
+      {
+        "fpr": 0.13,
+        "tpr": 0.5185
+      },
+      {
+        "fpr": 0.17,
+        "tpr": 0.5185
+      },
+      {
+        "fpr": 0.17,
+        "tpr": 0.5556
+      },
+      {
+        "fpr": 0.18,
+        "tpr": 0.5556
+      },
+      {
+        "fpr": 0.18,
+        "tpr": 0.6667
+      },
+      {
+        "fpr": 0.19,
+        "tpr": 0.6667
+      },
+      {
+        "fpr": 0.19,
+        "tpr": 0.6852
+      },
+      {
+        "fpr": 0.2,
+        "tpr": 0.6852
+      },
+      {
+        "fpr": 0.2,
+        "tpr": 0.7222
+      },
+      {
+        "fpr": 0.25,
+        "tpr": 0.7222
+      },
+      {
+        "fpr": 0.25,
+        "tpr": 0.7778
+      },
+      {
+        "fpr": 0.26,
+        "tpr": 0.7778
+      },
+      {
+        "fpr": 0.26,
+        "tpr": 0.7963
+      },
+      {
+        "fpr": 0.27,
+        "tpr": 0.7963
+      },
+      {
+        "fpr": 0.27,
+        "tpr": 0.8148
+      },
+      {
+        "fpr": 0.32,
+        "tpr": 0.8148
+      },
+      {
+        "fpr": 0.32,
+        "tpr": 0.8519
+      },
+      {
+        "fpr": 0.34,
+        "tpr": 0.8519
+      },
+      {
+        "fpr": 0.34,
+        "tpr": 0.8704
+      },
+      {
+        "fpr": 0.38,
+        "tpr": 0.8704
+      },
+      {
+        "fpr": 0.38,
+        "tpr": 0.8889
+      },
+      {
+        "fpr": 0.41,
+        "tpr": 0.8889
+      },
+      {
+        "fpr": 0.41,
+        "tpr": 0.9074
+      },
+      {
+        "fpr": 0.47,
+        "tpr": 0.9074
+      },
+      {
+        "fpr": 0.47,
+        "tpr": 0.9259
+      },
+      {
+        "fpr": 0.49,
+        "tpr": 0.9259
+      },
+      {
+        "fpr": 0.49,
+        "tpr": 0.9444
+      },
+      {
+        "fpr": 0.59,
+        "tpr": 0.9444
+      },
+      {
+        "fpr": 0.59,
+        "tpr": 0.963
+      },
+      {
+        "fpr": 0.65,
+        "tpr": 0.963
+      },
+      {
+        "fpr": 0.65,
+        "tpr": 0.9815
+      },
+      {
+        "fpr": 0.67,
+        "tpr": 0.9815
+      },
+      {
+        "fpr": 0.69,
+        "tpr": 0.9815
+      },
+      {
+        "fpr": 0.76,
+        "tpr": 0.9815
+      },
+      {
+        "fpr": 0.76,
+        "tpr": 1.0
+      },
+      {
+        "fpr": 1.0,
+        "tpr": 1.0
+      }
+    ]
+  },
+  "feature_importance": [
+    {
+      "feature": "Glucose",
+      "display_name": "Plasma Glucose Concentration",
+      "importance": 0.3317,
+      "percentage": 33.17
+    },
+    {
+      "feature": "BMI",
+      "display_name": "Body Mass Index (BMI)",
+      "importance": 0.1514,
+      "percentage": 15.14
+    },
+    {
+      "feature": "Age",
+      "display_name": "Patient Age",
+      "importance": 0.1209,
+      "percentage": 12.09
+    },
+    {
+      "feature": "Insulin",
+      "display_name": "2-Hour Serum Insulin",
+      "importance": 0.1077,
+      "percentage": 10.77
+    },
+    {
+      "feature": "DiabetesPedigreeFunction",
+      "display_name": "Diabetes Pedigree Score",
+      "importance": 0.0879,
+      "percentage": 8.79
+    },
+    {
+      "feature": "Pregnancies",
+      "display_name": "Number of Pregnancies",
+      "importance": 0.0854,
+      "percentage": 8.54
+    },
+    {
+      "feature": "SkinThickness",
+      "display_name": "Triceps Skinfold Thickness",
+      "importance": 0.0642,
+      "percentage": 6.42
+    },
+    {
+      "feature": "BloodPressure",
+      "display_name": "Diastolic Blood Pressure",
+      "importance": 0.0507,
+      "percentage": 5.07
+    }
+  ]
+}

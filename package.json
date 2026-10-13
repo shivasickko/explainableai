@@ -1,0 +1,25 @@
+{
+  "name": "explainable-diabetes-risk-dashboard",
+  "version": "1.0.0",
+  "description": "Explainable Diabetes Risk Prediction Dashboard with Clinical Feature Contribution Analysis (Dhanalakshmi College of Engineering - Batch 10)",
+  "main": "run.py",
+  "scripts": {
+    "start": "python3 run.py",
+    "dev": "python3 run.py",
+    "setup": "python3 -m venv .venv && .venv/bin/pip install -r requirements.txt",
+    "test": ".venv/bin/python tests/test_pipeline.py && .venv/bin/python tests/test_api.py",
+    "test:pipeline": ".venv/bin/python tests/test_pipeline.py",
+    "test:api": ".venv/bin/python tests/test_api.py"
+  },
+  "keywords": [
+    "diabetes-prediction",
+    "explainable-ai",
+    "shap",
+    "machine-learning",
+    "xgboost",
+    "healthcare-dashboard",
+    "fastapi"
+  ],
+  "author": "Department of AI and Data Science - Batch 10",
+  "license": "MIT"
+}
